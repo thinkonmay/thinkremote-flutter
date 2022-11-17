@@ -7,7 +7,7 @@ class Soundcard {
   late bool IsDefault;
   late bool IsLoopback;
 
-  Soundcard(dynamic data){
+  Soundcard(dynamic data) {
     DeviceID = data.id;
     Name = data.name;
     Api = data.api;
@@ -26,7 +26,7 @@ class Monitor {
   late int Framerate;
   late bool IsPrimary;
 
-  Monitor(dynamic data){
+  Monitor(dynamic data) {
     MonitorHandle = data.handle;
     MonitorName = data.name;
     DeviceName = data.device;
@@ -35,50 +35,49 @@ class Monitor {
     Height = data.height;
     Framerate = data.framerate;
     IsPrimary = data.isPrimary;
-
   }
 }
 
-class DeviceSelection{
+class DeviceSelection {
   late List<Monitor> monitors;
   late List<Soundcard> soundcards;
 
-  DeviceSelection(String data){
+  DeviceSelection(String data) {
     monitors = <Monitor>[];
     soundcards = <Soundcard>[];
 
     var parseResult = jsonDecode(data);
 
-    for (var i in parseResult["monitors"]){
+    for (var i in parseResult["monitors"]) {
       monitors.add(Monitor(i));
     }
-    for (var i in parseResult["soundcards"]){
+    for (var i in parseResult["soundcards"]) {
       soundcards.add(Soundcard(i));
     }
   }
 }
 
-class DeviceSelectionResult{
+class DeviceSelectionResult {
   late String MonitorHandle;
-  late String SoundcardDeviceID; 
+  late String SoundcardDeviceID;
   late int bitrate;
   late int framerate;
 
-  DeviceSelectionResult(int bitrate, int framerate, String soundcard, String monitor){
+  DeviceSelectionResult(
+      int bitrate, int framerate, String soundcard, String monitor) {
     bitrate = bitrate;
     framerate = framerate;
     SoundcardDeviceID = soundcard;
     MonitorHandle = monitor;
-  } 
+  }
 
   @override
   String toString() {
     return jsonEncode({
-            "monitor": this.MonitorHandle,
-            "soundcard": this.SoundcardDeviceID,
-            "bitrate": this.bitrate,
-            "framerate": this.framerate,
-        });
+      "monitor": this.MonitorHandle,
+      "soundcard": this.SoundcardDeviceID,
+      "bitrate": this.bitrate,
+      "framerate": this.framerate,
+    });
   }
 }
-
