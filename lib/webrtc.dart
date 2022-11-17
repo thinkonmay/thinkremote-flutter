@@ -116,8 +116,8 @@ class WebRTC {
     var init = await Conn.getLocalDescription();
 
     var dat = <String, String>{};
-    dat.update("Type", (value) => value = init!.type!);
-    dat.update("SDP", (value) => value = init!.sdp!);
+    dat["Type"] = init!.type!;
+    dat["SDP"] = init.sdp!;
     signallingSendFunc(target: "SDP", data: dat);
   }
 
@@ -130,13 +130,13 @@ class WebRTC {
     var init = jsonEncode(ev.candidate) as RTCIceCandidate;
     var dat = <String, String>{};
     if (init.candidate!.isNotEmpty) {
-      dat.update("Candidate", (value) => value = init.candidate!);
+      dat["Candidate"] = init.candidate!;
     }
     if (init.sdpMid!.isNotEmpty) {
-      dat.update("SDPMid", (value) => value = init.sdpMid!);
+      dat["SDPMid"] = init.sdpMid!;
     }
     if (init.sdpMLineIndex != null) {
-      dat.update("SDPMLineIndex", ((value) => init.sdpMLineIndex.toString()));
+      dat["SDPMLineIndex"] = init.sdpMLineIndex.toString();
     }
     signallingSendFunc(target: "ICE", data: dat);
   }
