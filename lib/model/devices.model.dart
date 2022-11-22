@@ -14,6 +14,13 @@ class Soundcard {
     IsDefault = data.isDefault;
     IsLoopback = data.isLoopback;
   }
+
+  Soundcard.fromJson(Map<String, dynamic> json)
+      : DeviceID = json['id'],
+        Name = json['name'],
+        Api = json['api'],
+        IsDefault = json['isDefault'],
+        IsLoopback = json['isLoopback'];
 }
 
 class Monitor {
@@ -36,6 +43,16 @@ class Monitor {
     Framerate = data.framerate;
     IsPrimary = data.isPrimary;
   }
+
+  Monitor.fromJson(Map<String, dynamic> json)
+      : MonitorHandle = json['handle'],
+        MonitorName = json['name'],
+        DeviceName = json['device'],
+        Adapter = json['adapter'],
+        Width = json['width'],
+        Height = json['height'],
+        Framerate = json['framerate'],
+        IsPrimary = json['isPrimary'];
 }
 
 class DeviceSelection {
@@ -49,10 +66,10 @@ class DeviceSelection {
     var parseResult = jsonDecode(data);
 
     for (var i in parseResult["monitors"]) {
-      monitors.add(Monitor(i));
+      monitors.add(Monitor.fromJson(i));
     }
     for (var i in parseResult["soundcards"]) {
-      soundcards.add(Soundcard(i));
+      soundcards.add(Soundcard.fromJson(i));
     }
   }
 }
@@ -65,10 +82,10 @@ class DeviceSelectionResult {
 
   DeviceSelectionResult(
       int bitrate, int framerate, String soundcard, String monitor) {
-    bitrate = bitrate;
-    framerate = framerate;
-    SoundcardDeviceID = soundcard;
-    MonitorHandle = monitor;
+    this.bitrate = bitrate;
+    this.framerate = framerate;
+    this.SoundcardDeviceID = soundcard;
+    this.MonitorHandle = monitor;
   }
 
   @override

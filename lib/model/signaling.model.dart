@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 class UserResponse {
-  late int Id;
-  late String Error;
+  late int? Id;
+  late String? Error;
   late Map<String, String> Data;
 
-  UserResponse(int id, String error, Map<String, String> data) {
+  UserResponse(int? id, String? error, Map<String, String> data) {
     Id = id;
     Error = error;
     var Data = <String, String>{};

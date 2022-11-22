@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' as LibWebRTC;
+import 'package:flutter_webrtc_client/main.dart';
 import 'package:flutter_webrtc_client/model/devices.model.dart' as Device;
 import 'package:flutter_webrtc_client/signaling/websocket.dart';
 import 'package:flutter_webrtc_client/webrtc.dart';
@@ -6,21 +9,20 @@ import 'package:flutter_webrtc/flutter_webrtc.dart' as LibWebRTC;
 
 import 'utils/log.dart';
 
-final SIGNALLING_URL = dotenv.get("NEXT_PUBLIC_SIGNALING_URL").isNotEmpty
-    ? dotenv.get("NEXT_PUBLIC_SIGNALING_URL")
-    : "wss://remote.thinkmay.net/handshake";
-
 typedef AlertType = void Function(String input);
 typedef DeviceSelectionType = Future<Device.DeviceSelectionResult> Function(
     Device.DeviceSelection input);
 
 class WebRTCClient {
-  late dynamic video;
+  // final SIGNALLING_URL = DotEnv().get('NEXT_PUBLIC_SIGNALING_URL').isNotEmpty
+  //     ? dotenv.get('NEXT_PUBLIC_SIGNALING_URL')
+  //     : 'wss://remote.thinkmay.net/handshake';
+
   late dynamic audio;
 
   late WebRTC webrtc;
   // final HID hid;
-  late SignallingClient signaling;
+  var signaling;
   // final Map<String, DataChannel> datachannels;
 
   late DeviceSelectionType DeviceSelection;
@@ -29,18 +31,13 @@ class WebRTCClient {
   late bool started;
 
   WebRTCClient(
-    dynamic vid,
-    dynamic audio,
+    this.audio,
     String token,
-    DeviceSelectionType DeviceSelction,
+    this.DeviceSelection,
   ) {
     Log(LogLevel.Infor, "Started oneplay app with token $token");
     LogConnectionEvent(ConnectionEvent.ApplicationStarted);
-    started = false;
-    video = vid;
-    audio = audio;
-
-    DeviceSelection = DeviceSelection;
+    this.started = false;
     // this.datachannels = new Map<string,DataChannel>();
     // this.hid = new HID(this.video,((data: string) => {
     //     let channel = this.datachannels.get("hid")
@@ -51,11 +48,11 @@ class WebRTCClient {
     //     channel.sendMessage(data);
     // }));
 
-    signaling = SignallingClient(SIGNALLING_URL, token,
+    signaling = SignallingClient("https://remote.thinkmay.net/handshake", token,
         ({Map<String, String>? Data}) => handleIncomingPacket(Data!));
 
     webrtc = WebRTC(({data, target}) {
-      var signaling = this.signaling;
+      SignallingClient signaling = this.signaling;
       signaling.SignallingSend(target!, data!);
     }, (ev) {
       handleIncomingTrack(ev);
@@ -64,19 +61,18 @@ class WebRTCClient {
     });
   }
 
-  handleIncomingTrack(LibWebRTC.RTCTrackEvent evt) {
+  handleIncomingTrack(
+      LibWebRTC.RTCTrackEvent evt) {
     started = true;
     Log(LogLevel.Infor, "Incoming ${evt.track.kind} stream");
-    if (evt.track.kind == "audio") {
-      if (audio.current.srcObject != evt.streams[0]) {
-        LogConnectionEvent(ConnectionEvent.ReceivedAudioStream);
-        audio.current.srcObject = evt.streams[0];
-      }
-    } else if (evt.track.kind == "video") {
-      if (video.current.srcObject != evt.streams[0]) {
-        LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
-        video.current.srcObject = evt.streams[0];
-      }
+    // if (evt.track.kind == "audio") {
+    //   if (audio.current.srcObject != evt.streams[0]) {
+    //     LogConnectionEvent(ConnectionEvent.ReceivedAudioStream);
+    //     audio.current.srcObject = evt.streams[0];
+    //   }
+    // } else 
+    if (evt.track.kind == "video") {
+        onRemoteStream?.call(evt.streams[0]);
     }
   }
 
@@ -88,7 +84,7 @@ class WebRTCClient {
     }
 
     // this.datachannels.set(a.label, new DataChannel(a,(data) => {
-    //     Log(LogLevel.Debug, "message from data channel ${a.label}: ${data}");
+    //     Log(LogLevel.Debug, "message from data channel ${a.label}: ${d ata}");
     // }));
   }
 
@@ -158,4 +154,6 @@ class WebRTCClient {
     alert = notifier;
     return this;
   }
+
+  Function(LibWebRTC.MediaStream stream)? onRemoteStream;
 }

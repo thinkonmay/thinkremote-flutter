@@ -111,7 +111,7 @@ AddNotifier(FailNotifyType notifier) {
 
 Log(LogLevel level, String message) {
   var logger = getLoggerSingleton();
-  logger.filterEvent(jsonEncode(level));
+  // logger.filterEvent(jsonEncode(level));
   print("[${GetLogLevelString(level)}] : $message");
 }
 

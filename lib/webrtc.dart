@@ -44,14 +44,16 @@ class WebRTC {
     setup(channelHandler, trackerHandler);
   }
 
-  onConnectionStateChange(RTCPeerConnectionState eve) {
-    print("state change to ${jsonEncode(eve)}");
+  onConnectionStateChange(eve) {
+    print("state change to $eve");
     switch (eve) {
       case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
         // LogConnectionEvent(ConnectionEvent.WebRTCConnectionDoneChecking)
         // Log(LogLevel.Infor,"webrtc connection established");
         break;
       case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
+        
+        break;
       case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
         // LogConnectionEvent(ConnectionEvent.WebRTCConnectionClosed)
         // Log(LogLevel.Error,"webrtc connection establish failed");
@@ -71,7 +73,7 @@ class WebRTC {
     try {
       await conn.addCandidate(candidate);
     } catch (error) {
-      // Log(LogLevel.Error,error);
+      // Log(LogLevel.Error,error)  ;
     }
   }
 
@@ -127,16 +129,15 @@ class WebRTC {
       return;
     }
 
-    var init = jsonEncode(ev.candidate) as RTCIceCandidate;
     var dat = <String, String>{};
-    if (init.candidate!.isNotEmpty) {
-      dat["Candidate"] = init.candidate!;
+    if (ev.candidate!.isNotEmpty) {
+      dat["Candidate"] = ev.candidate!;
     }
-    if (init.sdpMid!.isNotEmpty) {
-      dat["SDPMid"] = init.sdpMid!;
+    if (ev.sdpMid!.isNotEmpty) {
+      dat["SDPMid"] = ev.sdpMid!;
     }
-    if (init.sdpMLineIndex != null) {
-      dat["SDPMLineIndex"] = init.sdpMLineIndex.toString();
+    if (ev.sdpMLineIndex != null) {
+      dat["SDPMLineIndex"] = ev.sdpMLineIndex.toString();
     }
     signallingSendFunc(target: "ICE", data: dat);
   }
