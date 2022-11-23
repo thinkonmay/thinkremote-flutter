@@ -74,7 +74,7 @@ class _MyAppState extends State<MyApp> {
         //   }
         // }
         return DeviceSelectionResult(
-            3000, 30, "none", offer.monitors[0].MonitorHandle.toString());
+            3000, 60, "none", offer.monitors[0].MonitorHandle.toString());
       }).Notifier((message) {
         print("Notifer $message");
         // TurnOnStatus(message);
