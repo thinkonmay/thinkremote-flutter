@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as LibWebRTC;
-import 'package:flutter_webrtc_client/main.dart';
 import 'package:flutter_webrtc_client/model/devices.model.dart' as Device;
 import 'package:flutter_webrtc_client/signaling/websocket.dart';
 import 'package:flutter_webrtc_client/webrtc.dart';

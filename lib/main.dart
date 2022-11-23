@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
   connect() {
     if (true) {
       String token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxNzgiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyNzIiLCJuYmYiOjE2NjkxNzg2MzMsImV4cCI6MTY2OTQzNzgzMywiaWF0IjoxNjY5MTc4NjMzfQ.cOHTxsSQM4dm3GJIFFm5FX1-ZlUPcn3nhQhBWQ_rYyQ";
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxODMiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyOTMiLCJuYmYiOjE2NjkxODk2ODEsImV4cCI6MTY2OTQ0ODg4MSwiaWF0IjoxNjY5MTg5NjgxfQ.hLIUie2dlyzW_-mji_7_FRytyhWEwgLJMiqtB9nYsb0";
 
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {

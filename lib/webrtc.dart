@@ -16,14 +16,14 @@ class WebRTC {
       ChannelHandlerType channelHandler, TrackHandlerType trackHandler) async {
     var configuration = {
       "iceServers": [
-        {
-          "urls": "turn:workstation.thinkmay.net:3478",
-          "username": "oneplay",
-          "credential": "oneplay"
-        },
+        // {
+        //   "urls": "turn:workstation.thinkmay.net:3478",
+        //   "username": "oneplay",
+        //   "credential": "oneplay"
+        // },
         {
           "urls": [
-            "stun:workstation.thinkmay.net:3478",
+            // "stun:workstation.thinkmay.net:3478",
             "stun:stun.l.google.com:19302"
           ]
         }
