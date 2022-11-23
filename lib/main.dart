@@ -47,7 +47,8 @@ class _MyAppState extends State<MyApp> {
   connect() {
     if (true) {
       String token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxNzgiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyNzIiLCJuYmYiOjE2NjkxNzg2MzMsImV4cCI6MTY2OTQzNzgzMywiaWF0IjoxNjY5MTc4NjMzfQ.cOHTxsSQM4dm3GJIFFm5FX1-ZlUPcn3nhQhBWQ_rYyQ";
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxODUiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyOTgiLCJuYmYiOjE2NjkyMDU2MTAsImV4cCI6MTY2OTQ2NDgxMCwiaWF0IjoxNjY5MjA1NjEwfQ.MUHuQ8W7A3n3b8donG37SPhD-iJdFoYHzTt-_b0uL60";
+          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxNzgiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyNzIiLCJuYmYiOjE2NjkxNzg2MzMsImV4cCI6MTY2OTQzNzgzMywiaWF0IjoxNjY5MTc4NjMzfQ.cOHTxsSQM4dm3GJIFFm5FX1-ZlUPcn3nhQhBWQ_rYyQ";
 
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
