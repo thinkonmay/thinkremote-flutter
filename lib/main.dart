@@ -11,15 +11,32 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePage();
+}
+
+class _MyHomePage extends State<MyHomePage> {
   RTCVideoRenderer remoteVideo = RTCVideoRenderer();
+
+  TextEditingController tokenCtrler = TextEditingController();
 
   @override
   void initState() {
@@ -29,7 +46,6 @@ class _MyAppState extends State<MyApp> {
 
   initRenderers() async {
     await remoteVideo.initialize();
-    connect();
   }
 
   @override
@@ -44,12 +60,8 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  connect() {
-    if (true) {
-      String token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxODUiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyOTgiLCJuYmYiOjE2NjkyMDU2MTAsImV4cCI6MTY2OTQ2NDgxMCwiaWF0IjoxNjY5MjA1NjEwfQ.MUHuQ8W7A3n3b8donG37SPhD-iJdFoYHzTt-_b0uL60";
-          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxNzgiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyNzIiLCJuYmYiOjE2NjkxNzg2MzMsImV4cCI6MTY2OTQzNzgzMywiaWF0IjoxNjY5MTc4NjMzfQ.cOHTxsSQM4dm3GJIFFm5FX1-ZlUPcn3nhQhBWQ_rYyQ";
-
+  connect(String token) {
+    if (token.isNotEmpty) {
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
@@ -95,27 +107,75 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter WebRTC Client',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: OrientationBuilder(builder: (context, orientation) {
-          return Container(
-            child: Stack(children: <Widget>[
-              Positioned(
-                  left: 0.0,
-                  right: 0.0,
-                  top: 0.0,
-                  bottom: 0.0,
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(color: Colors.black54),
-                    child: RTCVideoView(remoteVideo),
+      title: 'Flutter WebRTC Client',
+      home: Scaffold(
+          appBar: AppBar(title: const Text('Flutter WebRTC Client')),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => displayTextInputDialog(context),
+            child: const Icon(Icons.add),
+          ), //
+          body: OrientationBuilder(builder: (context, orientation) {
+            return renderVideoWidget(context);
+          })),
+    );
+  }
+
+  Container renderVideoWidget(BuildContext context) {
+    return Container(
+      child: Stack(children: <Widget>[
+        Positioned(
+            left: 0.0,
+            right: 0.0,
+            top: 0.0,
+            bottom: 0.0,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: const BoxDecoration(color: Colors.black54),
+              child: RTCVideoView(remoteVideo),
+            )),
+      ]),
+    );
+  }
+
+  void displayTextInputDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Please fill your token!'),
+            content: TextField(
+              controller: tokenCtrler,
+              decoration: InputDecoration(
+                  hintText: "Your token",
+                  suffixIcon: InkWell(
+                    onTap: (){
+                       tokenCtrler.clear();
+                    },
+                    child: const Icon(Icons.close_rounded),
                   )),
-            ]),
+            ),
+            actions: [
+              MaterialButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: const Text('CANCEL'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              MaterialButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                child: const Text('OK'),
+                onPressed: () {
+                  connect(tokenCtrler.text);
+                  Navigator.pop(context);
+                },
+              )
+            ],
           );
-        }));
+        });
   }
 }
