@@ -25,13 +25,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initRenderers();
-    Future.delayed(const Duration(seconds: 5), () {
-      connect();
-    });
   }
 
   initRenderers() async {
     await remoteVideo.initialize();
+    connect();
   }
 
   @override
@@ -49,9 +47,10 @@ class _MyAppState extends State<MyApp> {
   connect() {
     if (true) {
       String token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxNzMiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyMzEiLCJuYmYiOjE2NjkxMDY0MDEsImV4cCI6MTY2OTM2NTYwMSwiaWF0IjoxNjY5MTA2NDAxfQ.SzV3xJUT5kaipB5OsvK81kvfVC87KbZh-gKCbU7jzfk";
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxNzgiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyNzIiLCJuYmYiOjE2NjkxNzg2MzMsImV4cCI6MTY2OTQzNzgzMywiaWF0IjoxNjY5MTc4NjMzfQ.cOHTxsSQM4dm3GJIFFm5FX1-ZlUPcn3nhQhBWQ_rYyQ";
 
-      var app = WebRTCClient(null, token, (DeviceSelection offer) async {
+      var app =
+          WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
         // var soundcardID = await AskSelectSoundcard(offer.soundcards);
         // Log(LogLevel.Infor, "selected audio deviceid $soundcardID");
@@ -67,14 +66,14 @@ class _MyAppState extends State<MyApp> {
 
 // mute
 
-        var soundcardNone;
-        for (var sourdcard in offer.soundcards) {
-          if (sourdcard.Api.toLowerCase() == "none") {
-            soundcardNone = sourdcard;
-          }
-        }
-        return DeviceSelectionResult(3000, 30, soundcardNone.DeviceID,
-            offer.monitors[0].MonitorHandle.toString());
+        // late Soundcard soundcardNone;
+        // for (var sourdcard in offer.soundcards) {
+        //   if (sourdcard.Api.toLowerCase() == "none") {
+        //     soundcardNone = sourdcard;
+        //   }
+        // }
+        return DeviceSelectionResult(
+            3000, 30, "none", offer.monitors[0].MonitorHandle.toString());
       }).Notifier((message) {
         print("Notifer $message");
         // TurnOnStatus(message);
@@ -84,7 +83,7 @@ class _MyAppState extends State<MyApp> {
 
       app.onRemoteStream = ((stream) {
         if (remoteVideo.srcObject != stream) {
-          LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
+          // LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
           remoteVideo.srcObject = stream;
           setState(() {});
         }
@@ -99,10 +98,23 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: Container(
-          height: 400,
-          width: 400,
-          child: RTCVideoView(remoteVideo),
-        ));
+        home: OrientationBuilder(builder: (context, orientation) {
+          return Container(
+            child: Stack(children: <Widget>[
+              Positioned(
+                  left: 0.0,
+                  right: 0.0,
+                  top: 0.0,
+                  bottom: 0.0,
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    decoration: const BoxDecoration(color: Colors.black54),
+                    child: RTCVideoView(remoteVideo),
+                  )),
+            ]),
+          );
+        }));
   }
 }

@@ -19,7 +19,7 @@ class WebRTCClient {
   //     : 'wss://remote.thinkmay.net/handshake';
 
   late dynamic audio;
-
+  late dynamic video;
   late WebRTC webrtc;
   // final HID hid;
   var signaling;
@@ -31,13 +31,16 @@ class WebRTCClient {
   late bool started;
 
   WebRTCClient(
-    this.audio,
+    dynamic audio,
+    dynamic vid,
     String token,
     this.DeviceSelection,
   ) {
     Log(LogLevel.Infor, "Started oneplay app with token $token");
     LogConnectionEvent(ConnectionEvent.ApplicationStarted);
     this.started = false;
+    this.audio = audio;
+    this.video = vid;
     // this.datachannels = new Map<string,DataChannel>();
     // this.hid = new HID(this.video,((data: string) => {
     //     let channel = this.datachannels.get("hid")
@@ -47,7 +50,6 @@ class WebRTCClient {
     //     }
     //     channel.sendMessage(data);
     // }));
-
     signaling = SignallingClient("https://remote.thinkmay.net/handshake", token,
         ({Map<String, String>? Data}) => handleIncomingPacket(Data!));
 
@@ -61,8 +63,7 @@ class WebRTCClient {
     });
   }
 
-  handleIncomingTrack(
-      LibWebRTC.RTCTrackEvent evt) {
+  handleIncomingTrack(LibWebRTC.RTCTrackEvent evt) {
     started = true;
     Log(LogLevel.Infor, "Incoming ${evt.track.kind} stream");
     // if (evt.track.kind == "audio") {
@@ -70,9 +71,13 @@ class WebRTCClient {
     //     LogConnectionEvent(ConnectionEvent.ReceivedAudioStream);
     //     audio.current.srcObject = evt.streams[0];
     //   }
-    // } else 
+    // } else
     if (evt.track.kind == "video") {
-        onRemoteStream?.call(evt.streams[0]);
+      // if (this.video.srcObject != evt.streams[0]) {
+      //   LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
+      //   this.video.srcObject = evt.streams[0];
+      // }
+      onRemoteStream?.call(evt.streams[0]);
     }
   }
 
