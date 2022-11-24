@@ -1,3 +1,4 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -139,7 +140,8 @@ class _MyHomePage extends State<MyHomePage> {
     );
   }
 
-  void displayTextInputDialog(BuildContext context) {
+  void displayTextInputDialog(BuildContext context) async {
+    tokenCtrler.text = await FlutterClipboard.paste();
     showDialog(
         context: context,
         builder: (context) {
@@ -151,7 +153,7 @@ class _MyHomePage extends State<MyHomePage> {
                   hintText: "Your token",
                   suffixIcon: InkWell(
                     onTap: (){
-                       tokenCtrler.clear();
+                      tokenCtrler.clear();
                     },
                     child: const Icon(Icons.close_rounded),
                   )),
