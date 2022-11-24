@@ -77,7 +77,6 @@ class _MyHomePage extends State<MyHomePage> {
 
         // return DeviceSelectionResult(bitrate, framerate, soundcard, monitor);
 
-// mute
 
         // late Soundcard soundcardNone;
         // for (var sourdcard in offer.soundcards) {

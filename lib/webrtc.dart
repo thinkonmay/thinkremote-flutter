@@ -130,7 +130,7 @@ class WebRTC {
     signallingSendFunc(target: "SDP", data: dat);
   }
 
-  onICECandidates(RTCIceCandidate ev) {
+  onICECandidates(RTCIceCandidate ev) async {
     if (ev.candidate == null) {
       print("ICE Candidate was null, done");
       return;
@@ -146,6 +146,10 @@ class WebRTC {
     if (ev.sdpMLineIndex != null) {
       dat["SDPMLineIndex"] = ev.sdpMLineIndex.toString();
     }
-    signallingSendFunc(target: "ICE", data: dat);
+
+    await Future.delayed(
+      const Duration(seconds: 1),
+      () => { signallingSendFunc( target: "ICE", data: dat ) }
+    );
   }
 }
