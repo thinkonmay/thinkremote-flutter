@@ -57,8 +57,12 @@ class _MyHomePage extends State<MyHomePage> {
 
   Future<void> initDynamicLinks() async {
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
-      print(dynamicLinkData.link);
-      // Navigator.pushReplacementNamed(context, dynamicLinkData.link.path);
+      var token = dynamicLinkData.link.toString().split("?")[1].split("=")[1];
+      if (token != "") {
+        connect(token);
+      } else {
+        print('token is empty');
+      }
     }).onError((error) {
       print('onLink error');
       print(error.message);
