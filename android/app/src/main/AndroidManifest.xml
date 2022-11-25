@@ -49,7 +49,7 @@
 
                 <data
                     android:scheme="http"
-                    android:host="flutterwebrtcclient.page.link"/>
+                    android:host="flutterwebrtcclientt.page.link"/>
                 <data android:scheme="https"/>                    
             </intent-filter>
         </activity>
