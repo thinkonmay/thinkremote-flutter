@@ -14,7 +14,9 @@ class WebRTC {
 
   Future setup(
       ChannelHandlerType channelHandler, TrackHandlerType trackHandler) async {
-    var configuration = {
+  
+    String sdpSemantics = 'unified-plan';
+    Map<String,dynamic> configuration = {
       "iceServers": [
         // {
         //   "urls": "turn:workstation.thinkmay.net:3478",
@@ -27,9 +29,14 @@ class WebRTC {
             "stun:stun.l.google.com:19302"
           ]
         }
-      ]
+      ],
     };
-    conn = await createPeerConnection(configuration);
+
+    conn = await createPeerConnection({
+      ...configuration,
+      ...{'sdpSemantics': sdpSemantics}
+    });
+
     conn.onDataChannel = channelHandler;
     conn.onTrack = trackHandler;
     conn.onIceCandidate = ((RTCIceCandidate ev) => {onICECandidates(ev)});
@@ -123,7 +130,7 @@ class WebRTC {
     signallingSendFunc(target: "SDP", data: dat);
   }
 
-  onICECandidates(RTCIceCandidate ev) {
+  onICECandidates(RTCIceCandidate ev) async {
     if (ev.candidate == null) {
       print("ICE Candidate was null, done");
       return;
@@ -139,6 +146,10 @@ class WebRTC {
     if (ev.sdpMLineIndex != null) {
       dat["SDPMLineIndex"] = ev.sdpMLineIndex.toString();
     }
-    signallingSendFunc(target: "ICE", data: dat);
+
+    await Future.delayed(
+      const Duration(seconds: 1),
+      () => { signallingSendFunc( target: "ICE", data: dat ) }
+    );
   }
 }

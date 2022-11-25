@@ -1,3 +1,4 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -11,15 +12,32 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePage();
+}
+
+class _MyHomePage extends State<MyHomePage> {
   RTCVideoRenderer remoteVideo = RTCVideoRenderer();
+
+  TextEditingController tokenCtrler = TextEditingController();
 
   @override
   void initState() {
@@ -29,7 +47,6 @@ class _MyAppState extends State<MyApp> {
 
   initRenderers() async {
     await remoteVideo.initialize();
-    connect();
   }
 
   @override
@@ -44,11 +61,8 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  connect() {
-    if (true) {
-      String token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWNpcGllbnQiOiIxODMiLCJpc1NlcnZlciI6IkZhbHNlIiwiaWQiOiIyOTMiLCJuYmYiOjE2NjkxODk2ODEsImV4cCI6MTY2OTQ0ODg4MSwiaWF0IjoxNjY5MTg5NjgxfQ.hLIUie2dlyzW_-mji_7_FRytyhWEwgLJMiqtB9nYsb0";
-
+  connect(String token) {
+    if (token.isNotEmpty) {
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
@@ -64,7 +78,6 @@ class _MyAppState extends State<MyApp> {
 
         // return DeviceSelectionResult(bitrate, framerate, soundcard, monitor);
 
-// mute
 
         // late Soundcard soundcardNone;
         // for (var sourdcard in offer.soundcards) {
@@ -73,7 +86,7 @@ class _MyAppState extends State<MyApp> {
         //   }
         // }
         return DeviceSelectionResult(
-            3000, 30, "none", offer.monitors[0].MonitorHandle.toString());
+            3000, 60, "none", offer.monitors[0].MonitorHandle.toString());
       }).Notifier((message) {
         print("Notifer $message");
         // TurnOnStatus(message);
@@ -94,27 +107,76 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter WebRTC Client',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: OrientationBuilder(builder: (context, orientation) {
-          return Container(
-            child: Stack(children: <Widget>[
-              Positioned(
-                  left: 0.0,
-                  right: 0.0,
-                  top: 0.0,
-                  bottom: 0.0,
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(color: Colors.black54),
-                    child: RTCVideoView(remoteVideo),
+      title: 'Flutter WebRTC Client',
+      home: Scaffold(
+          appBar: AppBar(title: const Text('Flutter WebRTC Client')),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => displayTextInputDialog(context),
+            child: const Icon(Icons.add),
+          ), //
+          body: OrientationBuilder(builder: (context, orientation) {
+            return renderVideoWidget(context);
+          })),
+    );
+  }
+
+  Container renderVideoWidget(BuildContext context) {
+    return Container(
+      child: Stack(children: <Widget>[
+        Positioned(
+            left: 0.0,
+            right: 0.0,
+            top: 0.0,
+            bottom: 0.0,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: const BoxDecoration(color: Colors.black54),
+              child: RTCVideoView(remoteVideo),
+            )),
+      ]),
+    );
+  }
+
+  void displayTextInputDialog(BuildContext context) async {
+    tokenCtrler.text = await FlutterClipboard.paste();
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Please fill your token!'),
+            content: TextField(
+              controller: tokenCtrler,
+              decoration: InputDecoration(
+                  hintText: "Your token",
+                  suffixIcon: InkWell(
+                    onTap: (){
+                      tokenCtrler.clear();
+                    },
+                    child: const Icon(Icons.close_rounded),
                   )),
-            ]),
+            ),
+            actions: [
+              MaterialButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: const Text('CANCEL'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              MaterialButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                child: const Text('OK'),
+                onPressed: () {
+                  connect(tokenCtrler.text);
+                  Navigator.pop(context);
+                },
+              )
+            ],
           );
-        }));
+        });
   }
 }
