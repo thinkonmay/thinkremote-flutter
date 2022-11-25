@@ -1,14 +1,21 @@
 import 'package:clipboard/clipboard.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc_client/model/devices.model.dart';
 import 'package:flutter_webrtc_client/webrtc.client.dart';
 
+import 'firebase_options.dart';
 import 'utils/log.dart';
 
-void main() async {
+Future<void> main() async {
   // await DotEnv().load(fileName: '.env');
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -18,11 +25,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
       home: const MyHomePage(),
+      initialRoute: "/",
+      routes: <String, WidgetBuilder>{
+        "/test": (context) => _DynamicLinkScreen(),
+      },
     );
   }
 }
@@ -42,7 +51,22 @@ class _MyHomePage extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    initDynamicLinks();
     initRenderers();
+  }
+
+  Future<void> initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
+      var token = dynamicLinkData.link.toString().split("?")[1].split("=")[1];
+      if (token != "") {
+        connect(token);
+      } else {
+        print('token is empty');
+      }
+    }).onError((error) {
+      print('onLink error');
+      print(error.message);
+    });
   }
 
   initRenderers() async {
@@ -178,5 +202,21 @@ class _MyHomePage extends State<MyHomePage> {
             ],
           );
         });
+  }
+}
+
+class _DynamicLinkScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Hello World DeepLink'),
+        ),
+        body: const Center(
+          child: Text('Hello, World!'),
+        ),
+      ),
+    );
   }
 }
