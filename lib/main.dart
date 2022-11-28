@@ -86,7 +86,7 @@ class _MyHomePage extends State<MyHomePage> {
         //   }
         // }
         return DeviceSelectionResult(
-            3000, 60, "none", offer.monitors[0].MonitorHandle.toString());
+            3000, 60, offer.soundcards[2].DeviceID, offer.monitors[1].MonitorHandle.toString());
       }).Notifier((message) {
         print("Notifer $message");
         // TurnOnStatus(message);
@@ -94,12 +94,14 @@ class _MyHomePage extends State<MyHomePage> {
         print("Alert $message");
       });
 
-      app.onRemoteStream = ((stream) {
-        if (remoteVideo.srcObject != stream) {
-          // LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
-          remoteVideo.srcObject = stream;
-          setState(() {});
+      app.onRemoteStream = ((RTCTrackEvent evt) async {
+        if (evt.track.kind == "video") {
+          if (remoteVideo.srcObject != evt.streams[0]) {
+            LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
+            remoteVideo.srcObject = evt.streams[0];
+          }
         }
+        setState(() {});
       });
     }
   }

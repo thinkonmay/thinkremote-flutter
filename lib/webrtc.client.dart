@@ -66,19 +66,7 @@ class WebRTCClient {
   handleIncomingTrack(LibWebRTC.RTCTrackEvent evt) {
     started = true;
     Log(LogLevel.Infor, "Incoming ${evt.track.kind} stream");
-    // if (evt.track.kind == "audio") {
-    //   if (audio.current.srcObject != evt.streams[0]) {
-    //     LogConnectionEvent(ConnectionEvent.ReceivedAudioStream);
-    //     audio.current.srcObject = evt.streams[0];
-    //   }
-    // } else
-    if (evt.track.kind == "video") {
-      // if (this.video.srcObject != evt.streams[0]) {
-      //   LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
-      //   this.video.srcObject = evt.streams[0];
-      // }
-      onRemoteStream?.call(evt.streams[0]);
-    }
+      onRemoteStream?.call(evt);
   }
 
   handleIncomingDataChannel(LibWebRTC.RTCDataChannel a) {
@@ -160,5 +148,5 @@ class WebRTCClient {
     return this;
   }
 
-  Function(LibWebRTC.MediaStream stream)? onRemoteStream;
+  Function(LibWebRTC.RTCTrackEvent stream)? onRemoteStream;
 }
