@@ -23,8 +23,8 @@
 ```
 
 # Usage
-- `git clone https://github.com/cloudwebrtc/flutter-webrtc-demo`
-- `cd flutter-webrtc-demo`
+- `git clone https://github.com/OnePlay-Internet/flutter-webrtc-client.git`
+- `cd flutter-webrtc-client`
 - `flutter packages get`
 - `flutter run`
 
