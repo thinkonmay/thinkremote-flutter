@@ -75,13 +75,13 @@ class DeviceSelection {
 }
 
 class DeviceSelectionResult {
-  late String MonitorHandle;
-  late String SoundcardDeviceID;
-  late int bitrate;
-  late int framerate;
+  String? MonitorHandle;
+  String? SoundcardDeviceID;
+  int? bitrate;
+  int? framerate;
 
   DeviceSelectionResult(
-      int bitrate, int framerate, String soundcard, String monitor) {
+      int? bitrate, int? framerate, String? soundcard, String? monitor) {
     this.bitrate = bitrate;
     this.framerate = framerate;
     this.SoundcardDeviceID = soundcard;
