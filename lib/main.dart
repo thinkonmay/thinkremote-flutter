@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc_client/model/devices.model.dart';
+import 'package:flutter_webrtc_client/utils/popup.selection.dart';
 import 'package:flutter_webrtc_client/webrtc.client.dart';
 
 import 'firebase_options.dart';
@@ -90,27 +91,47 @@ class _MyHomePage extends State<MyHomePage> {
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
-        // var soundcardID = await AskSelectSoundcard(offer.soundcards);
-        // Log(LogLevel.Infor, "selected audio deviceid $soundcardID");
-        // var DeviceHandle = await AskSelectDisplay(offer.monitors);
-        // Log(LogLevel.Infor, "selected monitor handle $DeviceHandle");
-        // var bitrate = await AskSelectBitrate();
-        // Log(LogLevel.Infor, "selected bitrate $bitrate");
-        // var framerate = await AskSelectFramerate();
-        // Log(LogLevel.Infor, "selected framerate $framerate");
-        // LogConnectionEvent(ConnectionEvent.ExchangingSignalingMessage);
 
-        // return DeviceSelectionResult(bitrate, framerate, soundcard, monitor);
+        DeviceSelectionResult requestOptionDevice =
+            DeviceSelectionResult(null, null, null, null);
 
+        requestOptionDevice.SoundcardDeviceID = await showAlertDeviceSelection(
+          data: offer.soundcards,
+          type: TypeDeviceSelection.soundcard,
+          deviceSelectionResult: requestOptionDevice,
+          context: context,
+        );
 
-        // late Soundcard soundcardNone;
-        // for (var sourdcard in offer.soundcards) {
-        //   if (sourdcard.Api.toLowerCase() == "none") {
-        //     soundcardNone = sourdcard;
-        //   }
-        // }
-        return DeviceSelectionResult(
-            3000, 60, offer.soundcards[2].DeviceID, offer.monitors[1].MonitorHandle.toString());
+        Log(LogLevel.Infor,
+            "selected audio deviceid ${requestOptionDevice.SoundcardDeviceID}");
+
+        requestOptionDevice.MonitorHandle = await showAlertDeviceSelection(
+          data: offer.monitors,
+          type: TypeDeviceSelection.monitor,
+          deviceSelectionResult: requestOptionDevice,
+          context: context,
+        );
+        Log(LogLevel.Infor,
+            "selected monitor handle ${requestOptionDevice.MonitorHandle}");
+
+        requestOptionDevice.bitrate = await showAlertDeviceSelection(
+          data: const [3000, 5000, 10000],
+          type: TypeDeviceSelection.bitrate,
+          deviceSelectionResult: requestOptionDevice,
+          context: context,
+        );
+        Log(LogLevel.Infor, "selected bitrate ${requestOptionDevice.bitrate}");
+
+        requestOptionDevice.framerate = await showAlertDeviceSelection(
+          data: const [30, 60],
+          type: TypeDeviceSelection.framerate,
+          deviceSelectionResult: requestOptionDevice,
+          context: context,
+        );
+        Log(LogLevel.Infor,
+            "selected framerate ${requestOptionDevice.framerate}");
+        LogConnectionEvent(ConnectionEvent.ExchangingSignalingMessage);
+        return requestOptionDevice;
       }).Notifier((message) {
         print("Notifer $message");
         // TurnOnStatus(message);
@@ -177,7 +198,7 @@ class _MyHomePage extends State<MyHomePage> {
               decoration: InputDecoration(
                   hintText: "Your token",
                   suffixIcon: InkWell(
-                    onTap: (){
+                    onTap: () {
                       tokenCtrler.clear();
                     },
                     child: const Icon(Icons.close_rounded),

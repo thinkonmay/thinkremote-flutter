@@ -127,8 +127,8 @@ class WebRTCClient {
       var result = await DeviceSelection(i);
       var dat = <String, String>{};
       dat["type"] = "answer";
-      dat["monitor"] = result.MonitorHandle;
-      dat["soundcard"] = result.SoundcardDeviceID;
+      dat["monitor"] = result.MonitorHandle!;
+      dat["soundcard"] = result.SoundcardDeviceID!;
       dat["bitrate"] = "${result.bitrate}";
       dat["framerate"] = "${result.framerate}";
       signaling.SignallingSend("PREFLIGHT", dat);
