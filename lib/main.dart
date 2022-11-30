@@ -161,8 +161,6 @@ class _MyHomePage extends State<MyHomePage> {
             : SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
         isFullscreen = !isFullscreen;
         break;
-      case 'Mute audio':
-        break;
     }
   }
 
@@ -178,7 +176,7 @@ class _MyHomePage extends State<MyHomePage> {
               PopupMenuButton<String>(
                 onSelected: handleClick,
                 itemBuilder: (BuildContext context) {
-                  return {'Fullscreen', 'Mute audio'}.map((String choice) {
+                  return {'Fullscreen'}.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
                       child: Text(choice),
