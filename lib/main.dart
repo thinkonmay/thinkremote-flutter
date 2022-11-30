@@ -2,6 +2,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc_client/model/devices.model.dart';
@@ -48,6 +49,7 @@ class _MyHomePage extends State<MyHomePage> {
   RTCVideoRenderer remoteVideo = RTCVideoRenderer();
 
   TextEditingController tokenCtrler = TextEditingController();
+  bool isFullscreen = false;
 
   @override
   void initState() {
@@ -151,12 +153,39 @@ class _MyHomePage extends State<MyHomePage> {
     }
   }
 
+  Future<void> handleClick(String value) async {
+    switch (value) {
+      case 'Fullscreen':
+        isFullscreen
+            ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge)
+            : SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        isFullscreen = !isFullscreen;
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter WebRTC Client',
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-          appBar: AppBar(title: const Text('Flutter WebRTC Client')),
+          appBar: AppBar(
+            title: const Text('Flutter WebRTC Client'),
+            actions: <Widget>[
+              PopupMenuButton<String>(
+                onSelected: handleClick,
+                itemBuilder: (BuildContext context) {
+                  return {'Fullscreen'}.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              ),
+            ],
+          ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => displayTextInputDialog(context),
             child: const Icon(Icons.add),

@@ -50,7 +50,7 @@ class WebRTCClient {
     //     }
     //     channel.sendMessage(data);
     // }));
-    signaling = SignallingClient("https://remote.thinkmay.net/handshake", token,
+    signaling = SignallingClient('wss://remote.thinkmay.net/handshake', token,
         ({Map<String, String>? Data}) => handleIncomingPacket(Data!));
 
     webrtc = WebRTC(({data, target}) {
@@ -66,7 +66,7 @@ class WebRTCClient {
   handleIncomingTrack(LibWebRTC.RTCTrackEvent evt) {
     started = true;
     Log(LogLevel.Infor, "Incoming ${evt.track.kind} stream");
-      onRemoteStream?.call(evt);
+    onRemoteStream?.call(evt);
   }
 
   handleIncomingDataChannel(LibWebRTC.RTCDataChannel a) {
