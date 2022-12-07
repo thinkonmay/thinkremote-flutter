@@ -51,6 +51,9 @@ class _MyHomePage extends State<MyHomePage> {
   TextEditingController tokenCtrler = TextEditingController();
   bool isFullscreen = false;
 
+  double posX = 100;
+  double posY = 100;
+
   @override
   void initState() {
     super.initState();
@@ -164,6 +167,16 @@ class _MyHomePage extends State<MyHomePage> {
     }
   }
 
+  void onTapDown(BuildContext context, TapDownDetails details) {
+    // print('${details.globalPosition}');
+    RenderBox box = context.findRenderObject() as RenderBox;
+    final Offset localOffset = box.globalToLocal(details.globalPosition);
+    setState(() {
+      posX = localOffset.dx;
+      posY = localOffset.dy;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -209,8 +222,13 @@ class _MyHomePage extends State<MyHomePage> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               decoration: const BoxDecoration(color: Colors.black54),
-              child: RTCVideoView(remoteVideo),
+              child: GestureDetector(
+                onTapDown: (TapDownDetails details) =>
+                    onTapDown(context, details),
+                child: RTCVideoView(remoteVideo),
+              ),
             )),
+        Positioned(bottom: 10, left: 10, child: Text('Dx: ${posX/remoteVideo.videoWidth}, Dy: ${posY/remoteVideo.videoHeight}'))
       ]),
     );
   }
