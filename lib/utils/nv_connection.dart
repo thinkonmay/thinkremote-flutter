@@ -1,5 +1,4 @@
-import 'package:flutter/services.dart';
-import 'package:flutter_webrtc_client/input/MouseButtonPacket.dart';
+import 'package:flutter_webrtc_client/input/mouse_button_packet.dart';
 
 import 'moon_bridge.dart';
 
