@@ -11,6 +11,7 @@ import 'package:flutter_webrtc_client/webrtc.client.dart';
 
 import 'firebase_options.dart';
 import 'utils/log.dart';
+import 'utils/nv_connection.dart';
 
 Future<void> main() async {
   // await DotEnv().load(fileName: '.env');
@@ -53,6 +54,10 @@ class _MyHomePage extends State<MyHomePage> {
 
   double posX = 100;
   double posY = 100;
+
+  double maxHeightVideo = 100;
+  double maxWidthVideo = 100;
+
 
   @override
   void initState() {
@@ -149,6 +154,8 @@ class _MyHomePage extends State<MyHomePage> {
           if (remoteVideo.srcObject != evt.streams[0]) {
             LogConnectionEvent(ConnectionEvent.ReceivedVideoStream);
             remoteVideo.srcObject = evt.streams[0];
+            maxHeightVideo = remoteVideo.videoHeight.toDouble();
+            maxWidthVideo = remoteVideo.videoWidth.toDouble();
           }
         }
         setState(() {});
@@ -175,6 +182,21 @@ class _MyHomePage extends State<MyHomePage> {
       posX = localOffset.dx;
       posY = localOffset.dy;
     });
+
+    // NvConnection().sendMousePosition(
+    //     x: posX,
+    //     y: posY,
+    //     referenceWidth: maxWidthVideo,
+    //     referenceHeight: maxHeightVideo);
+
+    // NvConnection().sendMouseMoveAsMousePosition(
+    //     deltaX: posX / maxWidthVideo,
+    //     deltaY: posY / maxHeightVideo,
+    //     referenceWidth: maxWidthVideo,
+    //     referenceHeight: maxHeightVideo);
+
+    // NvConnection().sendMouseMove(
+    //     deltaX: posX / maxWidthVideo, deltaY: posY / maxHeightVideo);
   }
 
   @override
@@ -228,7 +250,11 @@ class _MyHomePage extends State<MyHomePage> {
                 child: RTCVideoView(remoteVideo),
               ),
             )),
-        Positioned(bottom: 10, left: 10, child: Text('Dx: ${posX/remoteVideo.videoWidth}, Dy: ${posY/remoteVideo.videoHeight}'))
+        Positioned(
+            bottom: 10,
+            left: 10,
+            child: Text(
+                'Dx: ${posX / remoteVideo.videoWidth}, Dy: ${posY / remoteVideo.videoHeight}'))
       ]),
     );
   }
