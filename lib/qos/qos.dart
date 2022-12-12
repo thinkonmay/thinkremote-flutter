@@ -142,74 +142,74 @@ class Adaptive {
 
   VideoMetrics filterVideo(List<StatsReport> reports) {
     var ret = null;
-    reports.forEach((report) {
-      var val = report.values["value"];
-      var key = report.values["key"];
-      if (val["type"] == "inbound-rtp" && val["kind"] == "video") {
-        ret = VideoMetrics();
-        ret.frameWidth = val["frameWidth"];
-        ret.frameHeight = val["frameHeight"];
-        ret.codecId = val["codecId"];
-        ret.decoderImplementation = val["decoderImplementation"];
-        ret.totalSquaredInterFrameDelay = val["totalSquaredInterFrameDelay"];
-        ret.totalInterFrameDelay = val["totalInterFrameDelay"];
-        ret.totalProcessingDelay = val["totalProcessingDelay"];
-        ret.totalDecodeTime = val["totalDecodeTime"];
-        ret.keyFramesDecoded = val["keyFramesDecoded"];
-        ret.framesDecoded = val["framesDecoded"];
-        ret.framesReceived = val["framesReceived"];
-        ret.headerBytesReceived = val["headerBytesReceived"];
-        ret.bytesReceived = val["bytesReceived"];
-        ret.packetsReceived = val["packetsReceived"];
-        ret.framesDropped = val["framesDropped"];
-        ret.packetsLost = val["packetsLost"];
-        ret.jitterBufferEmittedCount = val["jitterBufferEmittedCount"];
-        ret.jitterBufferDelay = val["jitterBufferDelay"];
-        ret.jitter = val["jitter"];
-        ret.timestamp = val["timestamp"];
-      }
-    });
+    // reports.forEach((report) {
+    //   var val = report.values["value"];
+    //   var key = report.values["key"];
+    //   if (val["type"] == "inbound-rtp" && val["kind"] == "video") {
+    //     ret = VideoMetrics();
+    //     ret.frameWidth = val["frameWidth"];
+    //     ret.frameHeight = val["frameHeight"];
+    //     ret.codecId = val["codecId"];
+    //     ret.decoderImplementation = val["decoderImplementation"];
+    //     ret.totalSquaredInterFrameDelay = val["totalSquaredInterFrameDelay"];
+    //     ret.totalInterFrameDelay = val["totalInterFrameDelay"];
+    //     ret.totalProcessingDelay = val["totalProcessingDelay"];
+    //     ret.totalDecodeTime = val["totalDecodeTime"];
+    //     ret.keyFramesDecoded = val["keyFramesDecoded"];
+    //     ret.framesDecoded = val["framesDecoded"];
+    //     ret.framesReceived = val["framesReceived"];
+    //     ret.headerBytesReceived = val["headerBytesReceived"];
+    //     ret.bytesReceived = val["bytesReceived"];
+    //     ret.packetsReceived = val["packetsReceived"];
+    //     ret.framesDropped = val["framesDropped"];
+    //     ret.packetsLost = val["packetsLost"];
+    //     ret.jitterBufferEmittedCount = val["jitterBufferEmittedCount"];
+    //     ret.jitterBufferDelay = val["jitterBufferDelay"];
+    //     ret.jitter = val["jitter"];
+    //     ret.timestamp = val["timestamp"];
+    //   }
+    // });
 
     return ret;
   }
 
   AudioMetrics filterAudio(List<StatsReport> reports) {
     var ret = null;
-    reports.forEach((report) {
-      var val = report.values["value"];
-      var key = report.values["key"];
-      if (val["type"] == "inbound-rtp" && val["kind"] == "audio") {
-        ret = AudioMetrics();
-        ret.totalAudioEnergy = val["totalAudioEnergy"];
-        ret.totalSamplesReceived = val["totalSamplesReceived"];
-        ret.headerBytesReceived = val["headerBytesReceived"];
-        ret.bytesReceived = val["bytesReceived"];
-        ret.packetsReceived = val["packetsReceived"];
-        ret.packetsLost = val["packetsLost"];
-        ret.timestamp = val["timestamp"];
-      }
-    });
+    // reports.forEach((report) {
+    //   var val = report.values["value"];
+    //   var key = report.values["key"];
+    //   if (  ["type"] == "inbound-rtp" && val["kind"] == "audio") {
+    //     ret = AudioMetrics();
+    //     ret.totalAudioEnergy = val["totalAudioEnergy"];
+    //     ret.totalSamplesReceived = val["totalSamplesReceived"];
+    //     ret.headerBytesReceived = val["headerBytesReceived"];
+    //     ret.bytesReceived = val["bytesReceived"];
+    //     ret.packetsReceived = val["packetsReceived"];
+    //     ret.packetsLost = val["packetsLost"];
+    //     ret.timestamp = val["timestamp"];
+    //   }
+    // });
 
     return ret;
   }
 
   getConnectionStats(RTCPeerConnection conn) async {
-    var result = await conn.getStats();
+    // var result = await conn.getStats();
 
-    var network = filterNetwork(result);
-    if (network != null) {
-      metricCallback(jsonEncode(network));
-    }
+    // var network = filterNetwork(result);
+    // if (network != null) {
+    //   metricCallback(jsonEncode(network));
+    // }
 
-    var audio = filterAudio(result);
-    if (audio != null) {
-      metricCallback(jsonEncode(audio));
-    }
+    // var audio = filterAudio(result);
+    // if (audio != null) {
+    //   metricCallback(jsonEncode(audio));
+    // }
 
-    var video = filterVideo(result);
-    if (video != null) {
-      metricCallback(jsonEncode(video));
-    }
+    // var video = filterVideo(result);
+    // if (video != null) {
+    //   metricCallback(jsonEncode(video));
+    // }
   }
 
   /**
