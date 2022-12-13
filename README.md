@@ -4,7 +4,7 @@
 
 # Dependencies
   - Framework
-    - [Flutter: 3.0.0](https://docs.flutter.dev/get-started/install)
+    - [Flutter: 3.3.0](https://docs.flutter.dev/get-started/install)
   - API
     - [RTCVideoRenderer](https://pub.dev/documentation/simplewebrtc_flutter_webrtc_shim/latest/rtc_video_view/RTCVideoRenderer-class.html)
     - [RTCPeerConnection](https://pub.dev/documentation/webrtc/latest/rtc_peerconnection/RTCPeerConnection-class.html)
