@@ -98,12 +98,13 @@ class _MyHomePage extends State<MyHomePage> {
 
   connect(String token) {
     if (token.isNotEmpty) {
+      
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
 
         DeviceSelectionResult requestOptionDevice =
-            DeviceSelectionResult(null, null, null, null);
+            DeviceSelectionResult(null, null);
 
         requestOptionDevice.SoundcardDeviceID = await showAlertDeviceSelection(
           data: offer.soundcards,
@@ -123,24 +124,6 @@ class _MyHomePage extends State<MyHomePage> {
         );
         Log(LogLevel.Infor,
             "selected monitor handle ${requestOptionDevice.MonitorHandle}");
-
-        requestOptionDevice.bitrate = await showAlertDeviceSelection(
-          data: const [3000, 5000, 10000],
-          type: TypeDeviceSelection.bitrate,
-          deviceSelectionResult: requestOptionDevice,
-          context: context,
-        );
-        Log(LogLevel.Infor, "selected bitrate ${requestOptionDevice.bitrate}");
-
-        requestOptionDevice.framerate = await showAlertDeviceSelection(
-          data: const [30, 60],
-          type: TypeDeviceSelection.framerate,
-          deviceSelectionResult: requestOptionDevice,
-          context: context,
-        );
-        Log(LogLevel.Infor,
-            "selected framerate ${requestOptionDevice.framerate}");
-        LogConnectionEvent(ConnectionEvent.ExchangingSignalingMessage);
         return requestOptionDevice;
       }).Notifier((message) {
         print("Notifer $message");
