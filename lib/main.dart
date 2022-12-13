@@ -51,6 +51,9 @@ class _MyHomePage extends State<MyHomePage> {
 
   TextEditingController tokenCtrler = TextEditingController();
   bool isFullscreen = false;
+  late FocusNode showKeyboard;
+
+  TextEditingController captureKeyCtrler = TextEditingController();
 
   double posX = 100;
   double posY = 100;
@@ -58,12 +61,12 @@ class _MyHomePage extends State<MyHomePage> {
   double maxHeightVideo = 100;
   double maxWidthVideo = 100;
 
-
   @override
   void initState() {
     super.initState();
     initDynamicLinks();
     initRenderers();
+    showKeyboard = FocusNode();
   }
 
   Future<void> initDynamicLinks() async {
@@ -93,12 +96,12 @@ class _MyHomePage extends State<MyHomePage> {
   @override
   void dispose() {
     remoteVideo.dispose();
+    showKeyboard.dispose();
     super.dispose();
   }
 
   connect(String token) {
     if (token.isNotEmpty) {
-      
       var app =
           WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
@@ -237,7 +240,48 @@ class _MyHomePage extends State<MyHomePage> {
             bottom: 10,
             left: 10,
             child: Text(
-                'Dx: ${posX / remoteVideo.videoWidth}, Dy: ${posY / remoteVideo.videoHeight}'))
+                'Dx: ${posX / remoteVideo.videoWidth}, Dy: ${posY / remoteVideo.videoHeight}')),
+        Positioned(
+          bottom: 35,
+          left: 10,
+          child: InkWell(
+              onTap: (() => showKeyboard.requestFocus()),
+              child: Container(
+                height: 50,
+                width: 120,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white),
+                child: const Center(
+                    child: Text(
+                  'Show Keyboard',
+                  style: TextStyle(color: Colors.black),
+                )),
+              )),
+        ),
+        Positioned(
+          bottom: 25,
+          right: 10,
+          child: Visibility(
+              visible: true,
+              child: SizedBox(
+                height: 50,
+                width: 500,
+                child: TextFormField(
+                  focusNode: showKeyboard,
+                  controller: captureKeyCtrler,
+                  onChanged: ((value) {
+                    print("Keyboard: ${value}");
+                    setState(() => captureKeyCtrler.clear());
+                  }),
+                  decoration: const InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.transparent)),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.transparent))),
+                ),
+              )),
+        )
       ]),
     );
   }
