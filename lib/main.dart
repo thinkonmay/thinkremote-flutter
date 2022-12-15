@@ -10,6 +10,7 @@ import 'package:flutter_webrtc_client/utils/popup.selection.dart';
 import 'package:flutter_webrtc_client/webrtc.client.dart';
 
 import 'firebase_options.dart';
+import 'input/keyboard_packet.dart';
 import 'utils/log.dart';
 import 'utils/nv_connection.dart';
 
@@ -55,11 +56,17 @@ class _MyHomePage extends State<MyHomePage> {
 
   TextEditingController captureKeyCtrler = TextEditingController();
 
+  late NvConnection conn;
+
   double posX = 100;
   double posY = 100;
 
   double maxHeightVideo = 100;
   double maxWidthVideo = 100;
+
+  int modifierFlags = 0;
+  bool grabComboDown = false;
+
 
   @override
   void initState() {
@@ -67,6 +74,7 @@ class _MyHomePage extends State<MyHomePage> {
     initDynamicLinks();
     initRenderers();
     showKeyboard = FocusNode();
+    conn = NvConnection(true);
   }
 
   Future<void> initDynamicLinks() async {
@@ -157,6 +165,66 @@ class _MyHomePage extends State<MyHomePage> {
             : SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
         isFullscreen = !isFullscreen;
         break;
+    }
+  }
+
+  int getModifierFlagsState() {
+    return modifierFlags;
+  }
+
+  int getModifierState(KeyEvent event) {
+    int modifier = getModifierFlagsState();
+    if (event.logicalKey == LogicalKeyboardKey.shift) {
+      modifier |= KeyboardPacket.MODIFIER_SHIFT;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.control) {
+      modifier |= KeyboardPacket.MODIFIER_CTRL;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.alt) {
+      modifier |= KeyboardPacket.MODIFIER_ALT;
+    }
+    return modifier;
+  }
+
+  bool handleSpecialKeys(LogicalKeyboardKey androidKeyCode, bool down) {
+    int modifierMask = 0;
+
+    if (androidKeyCode == LogicalKeyboardKey.controlRight) {
+      modifierMask = KeyboardPacket.MODIFIER_CTRL;
+    } else if (androidKeyCode == LogicalKeyboardKey.shiftLeft ||
+        androidKeyCode == LogicalKeyboardKey.shiftRight) {
+      modifierMask = KeyboardPacket.MODIFIER_SHIFT;
+    } else if (androidKeyCode == LogicalKeyboardKey.altLeft ||
+        androidKeyCode == LogicalKeyboardKey.altRight) {
+      modifierMask = KeyboardPacket.MODIFIER_ALT;
+    }
+
+    if (down) {
+      this.modifierFlags |= modifierMask;
+    } else {
+      this.modifierFlags &= ~modifierMask;
+    }
+
+
+    // Not a special combo
+    return false;
+  }
+
+  onKeyBoardEvent(bool buttonDown, LogicalKeyboardKey keyCode) {
+    double keyMap = keyboardTranslator.translate(keyCode, -1);
+    if (keyMap != 0) {
+      // handleSpecialKeys() takes the Android keycode
+      if (handleSpecialKeys(keyCode, buttonDown)) {
+        return;
+      }
+
+      if (buttonDown) {
+        conn.sendKeyboardInput(
+            keyMap, KeyboardPacket.KEY_DOWN, getModifierFlagsState());
+      } else {
+        conn.sendKeyboardInput(
+            keyMap, KeyboardPacket.KEY_UP, getModifierFlagsState());
+      }
     }
   }
 
