@@ -92,7 +92,7 @@ class _MyHomePage extends State<MyHomePage> {
     if (token.isNotEmpty) {
       
       var app =
-          WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
+          WebRTCClient("wss://remote.thinkmay.net/handshake",remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
 
         DeviceSelectionResult requestOptionDevice =

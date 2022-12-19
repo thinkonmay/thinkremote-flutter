@@ -34,12 +34,14 @@ class WebRTCClient {
   late bool started;
 
   WebRTCClient(
+    String signallingURL,
     dynamic audio,
     dynamic vid,
     String token,
     DeviceSelectionType deviceSelection,
   ) {
-    Log(LogLevel.Infor, "Started oneplay app with token $token");
+    Log(LogLevel.Infor, "Started oneplay app with token $signallingURL");
+    Log(LogLevel.Infor,"Session token: $token");
     LogConnectionEvent(ConnectionEvent.ApplicationStarted);
     this.started = false;
     this.audio = audio;
@@ -54,7 +56,7 @@ class WebRTCClient {
     //     }
     //     channel.sendMessage(data);
     // }));
-    signaling = SignallingClient('wss://remote.thinkmay.net/handshake', token,
+    signaling = SignallingClient(signallingURL, token,
         ({Map<String, String>? Data}) => handleIncomingPacket(Data!));
 
     webrtc = WebRTC(({data, target}) {
@@ -144,22 +146,6 @@ class WebRTCClient {
 
       var webrtcConf = pkt["WebRTCConfig"];
       if (webrtcConf != null) {
-        var example_configuration = {
-          "iceServers": [
-            {
-              "urls": ["turn:workstation.thinkmay.net:3478"],
-              "username": "oneplay",
-              "credential": "oneplay"
-            },
-            {
-              "urls": [
-                "stun:workstation.thinkmay.net:3478",
-                "stun:stun.l.google.com:19302"
-              ]
-            }
-          ]
-        };
-
         var config = jsonDecode(webrtcConf);
         this.webrtc.SetupConnection(config);
       }
