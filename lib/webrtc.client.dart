@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as LibWebRTC;
@@ -7,6 +9,7 @@ import 'package:flutter_webrtc_client/signaling/websocket.dart';
 import 'package:flutter_webrtc_client/webrtc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as LibWebRTC;
 
+import 'datachannel/datachannel.dart';
 import 'utils/log.dart';
 
 typedef AlertType = void Function(String input);
@@ -22,7 +25,7 @@ class WebRTCClient {
   late dynamic video;
   late WebRTC webrtc;
   // final HID hid;
-  var signaling;
+  late SignallingClient signaling;
   // final Map<String, DataChannel> datachannels;
 
   late DeviceSelectionType DeviceSelection;
@@ -31,16 +34,19 @@ class WebRTCClient {
   late bool started;
 
   WebRTCClient(
+    String signallingURL,
     dynamic audio,
     dynamic vid,
     String token,
-    this.DeviceSelection,
+    DeviceSelectionType deviceSelection,
   ) {
-    Log(LogLevel.Infor, "Started oneplay app with token $token");
+    Log(LogLevel.Infor, "Started oneplay app with token $signallingURL");
+    Log(LogLevel.Infor,"Session token: $token");
     LogConnectionEvent(ConnectionEvent.ApplicationStarted);
     this.started = false;
     this.audio = audio;
     this.video = vid;
+    this.DeviceSelection = deviceSelection;
     // this.datachannels = new Map<string,DataChannel>();
     // this.hid = new HID(this.video,((data: string) => {
     //     let channel = this.datachannels.get("hid")
@@ -50,7 +56,7 @@ class WebRTCClient {
     //     }
     //     channel.sendMessage(data);
     // }));
-    signaling = SignallingClient("https://remote.thinkmay.net/handshake", token,
+    signaling = SignallingClient(signallingURL, token,
         ({Map<String, String>? Data}) => handleIncomingPacket(Data!));
 
     webrtc = WebRTC(({data, target}) {
@@ -60,13 +66,28 @@ class WebRTCClient {
       handleIncomingTrack(ev);
     }, (ev) {
       handleIncomingDataChannel(ev);
+    }, (ev) {
+      handleWebRTCMetric(ev);
     });
   }
 
   handleIncomingTrack(LibWebRTC.RTCTrackEvent evt) {
     started = true;
     Log(LogLevel.Infor, "Incoming ${evt.track.kind} stream");
-      onRemoteStream?.call(evt);
+    onRemoteStream?.call(evt);
+  }
+
+  handleWebRTCMetric(String a) {
+    Log(LogLevel.Infor, 'metric : $a');
+
+    const dcName = "adaptive";
+    // var channel = this.datachannels.get(dcName);
+    // if (channel == null) {
+    //     Log(LogLevel.Warning, 'attempting to send message while data channel $dcName is ready');
+    //     return;
+    // }
+
+    // channel.sendMessage(a);
   }
 
   handleIncomingDataChannel(LibWebRTC.RTCDataChannel a) {
@@ -123,14 +144,18 @@ class WebRTCClient {
         alert(preverro);
       }
 
+      var webrtcConf = pkt["WebRTCConfig"];
+      if (webrtcConf != null) {
+        var config = jsonDecode(webrtcConf);
+        this.webrtc.SetupConnection(config);
+      }
+
       var i = Device.DeviceSelection(pkt["Devices"]!);
       var result = await DeviceSelection(i);
       var dat = <String, String>{};
       dat["type"] = "answer";
-      dat["monitor"] = result.MonitorHandle;
-      dat["soundcard"] = result.SoundcardDeviceID;
-      dat["bitrate"] = "${result.bitrate}";
-      dat["framerate"] = "${result.framerate}";
+      dat["monitor"] = result.MonitorHandle!;
+      dat["soundcard"] = result.SoundcardDeviceID!;
       signaling.SignallingSend("PREFLIGHT", dat);
     } else if (target == "START") {
       var dat = <String, String>{};

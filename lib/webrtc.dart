@@ -1,69 +1,59 @@
 import 'dart:convert';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:flutter_webrtc_client/qos/qos.dart';
+
+import 'utils/log.dart';
 
 typedef SendFuncType = void Function(
     {String? target, Map<String, String>? data});
-typedef TrackHandlerType = Function(RTCTrackEvent a);
+typedef MetricHandlerType = void Function(String target);
+typedef TrackHandlerType = dynamic Function(RTCTrackEvent a);
 typedef ChannelHandlerType = dynamic Function(RTCDataChannel a);
 
 class WebRTC {
-  late RTCPeerConnection conn;
-  late SendFuncType signallingSendFunc;
   late String state;
+  late RTCPeerConnection conn;
+  late Adaptive ads;
 
-  Future setup(
-      ChannelHandlerType channelHandler, TrackHandlerType trackHandler) async {
-  
-    String sdpSemantics = 'unified-plan';
-    Map<String,dynamic> configuration = {
-      "iceServers": [
-        {
-          "urls": "turn:workstation.thinkmay.net:3478",
-          "username": "oneplay",
-          "credential": "oneplay"
-        },
-        {
-          "urls": [
-            "stun:workstation.thinkmay.net:3478",
-            "stun:stun.l.google.com:19302"
-          ]
-        }
-      ],
-    };
-
-    conn = await createPeerConnection({
-      ...configuration,
-      ...{'sdpSemantics': sdpSemantics}
-    });
-
-    conn.onDataChannel = channelHandler;
-    conn.onTrack = trackHandler;
-    conn.onIceCandidate = ((RTCIceCandidate ev) => {onICECandidates(ev)});
-    conn.onConnectionState =
-        ((RTCPeerConnectionState ev) => {onConnectionStateChange(ev)});
-  }
+  late SendFuncType signalingSendFunc;
+  late MetricHandlerType MetricHandler;
+  late TrackHandlerType TrackHandler;
 
   WebRTC(SendFuncType sendFunc, TrackHandlerType trackerHandler,
-      ChannelHandlerType channelHandler) {
-    state = "Not connected";
-    signallingSendFunc = sendFunc;
-    setup(channelHandler, trackerHandler);
+      ChannelHandlerType channelHandler,
+      MetricHandlerType metricHandler
+      ) {
+    state = "Not setted up";
+    this.signalingSendFunc = sendFunc;
+    this.MetricHandler = metricHandler;
+    this.TrackHandler = trackerHandler;
+  }
+
+  SetupConnection(Map<String, dynamic> config) async {
+    this.conn = await createPeerConnection(config);
+    this.ads = new Adaptive(conn, this.MetricHandler);
+    // this.conn.onDataChannel = this.chan
+    this.conn.onTrack = this.TrackHandler;
+    this.conn.onIceCandidate = this.onICECandidates;
+    this.conn.onConnectionState = this.onConnectionStateChange;
+    this.state = "Not connected";
   }
 
   onConnectionStateChange(eve) {
     print("state change to $eve");
     switch (eve) {
       case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
-        // LogConnectionEvent(ConnectionEvent.WebRTCConnectionDoneChecking)
-        // Log(LogLevel.Infor,"webrtc connection established");
+        LogConnectionEvent(ConnectionEvent.WebRTCConnectionDoneChecking);
+        Log(LogLevel.Infor, "webrtc connection established");
         break;
       case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-        
+        LogConnectionEvent(ConnectionEvent.WebRTCConnectionClosed);
+        Log(LogLevel.Error, "webrtc connection establish failed");
         break;
       case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
-        // LogConnectionEvent(ConnectionEvent.WebRTCConnectionClosed)
-        // Log(LogLevel.Error,"webrtc connection establish failed");
+        LogConnectionEvent(ConnectionEvent.WebRTCConnectionClosed);
+        Log(LogLevel.Error, "webrtc connection establish failed");
         break;
       default:
         break;
@@ -127,7 +117,7 @@ class WebRTC {
     var dat = <String, String>{};
     dat["Type"] = init!.type!;
     dat["SDP"] = init.sdp!;
-    signallingSendFunc(target: "SDP", data: dat);
+    signalingSendFunc(target: "SDP", data: dat);
   }
 
   onICECandidates(RTCIceCandidate ev) async {
@@ -147,9 +137,7 @@ class WebRTC {
       dat["SDPMLineIndex"] = ev.sdpMLineIndex.toString();
     }
 
-    await Future.delayed(
-      const Duration(seconds: 1),
-      () => { signallingSendFunc( target: "ICE", data: dat ) }
-    );
+    await Future.delayed(const Duration(seconds: 1),
+        () => {signalingSendFunc(target: "ICE", data: dat)});
   }
 }

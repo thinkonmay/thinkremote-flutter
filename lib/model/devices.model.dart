@@ -75,15 +75,11 @@ class DeviceSelection {
 }
 
 class DeviceSelectionResult {
-  late String MonitorHandle;
-  late String SoundcardDeviceID;
-  late int bitrate;
-  late int framerate;
+  String? MonitorHandle;
+  String? SoundcardDeviceID;
 
   DeviceSelectionResult(
-      int bitrate, int framerate, String soundcard, String monitor) {
-    this.bitrate = bitrate;
-    this.framerate = framerate;
+      String? soundcard, String? monitor) {
     this.SoundcardDeviceID = soundcard;
     this.MonitorHandle = monitor;
   }
@@ -93,8 +89,6 @@ class DeviceSelectionResult {
     return jsonEncode({
       "monitor": this.MonitorHandle,
       "soundcard": this.SoundcardDeviceID,
-      "bitrate": this.bitrate,
-      "framerate": this.framerate,
     });
   }
 }

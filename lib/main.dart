@@ -2,9 +2,11 @@ import 'package:clipboard/clipboard.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc_client/model/devices.model.dart';
+import 'package:flutter_webrtc_client/utils/popup.selection.dart';
 import 'package:flutter_webrtc_client/webrtc.client.dart';
 
 import 'firebase_options.dart';
@@ -47,6 +49,7 @@ class _MyHomePage extends State<MyHomePage> {
   RTCVideoRenderer remoteVideo = RTCVideoRenderer();
 
   TextEditingController tokenCtrler = TextEditingController();
+  bool isFullscreen = false;
 
   @override
   void initState() {
@@ -87,30 +90,33 @@ class _MyHomePage extends State<MyHomePage> {
 
   connect(String token) {
     if (token.isNotEmpty) {
+      
       var app =
-          WebRTCClient(remoteVideo, null, token, (DeviceSelection offer) async {
+          WebRTCClient("wss://remote.thinkmay.net/handshake",remoteVideo, null, token, (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
-        // var soundcardID = await AskSelectSoundcard(offer.soundcards);
-        // Log(LogLevel.Infor, "selected audio deviceid $soundcardID");
-        // var DeviceHandle = await AskSelectDisplay(offer.monitors);
-        // Log(LogLevel.Infor, "selected monitor handle $DeviceHandle");
-        // var bitrate = await AskSelectBitrate();
-        // Log(LogLevel.Infor, "selected bitrate $bitrate");
-        // var framerate = await AskSelectFramerate();
-        // Log(LogLevel.Infor, "selected framerate $framerate");
-        // LogConnectionEvent(ConnectionEvent.ExchangingSignalingMessage);
 
-        // return DeviceSelectionResult(bitrate, framerate, soundcard, monitor);
+        DeviceSelectionResult requestOptionDevice =
+            DeviceSelectionResult(null, null);
 
+        requestOptionDevice.SoundcardDeviceID = await showAlertDeviceSelection(
+          data: offer.soundcards,
+          type: TypeDeviceSelection.soundcard,
+          deviceSelectionResult: requestOptionDevice,
+          context: context,
+        );
 
-        // late Soundcard soundcardNone;
-        // for (var sourdcard in offer.soundcards) {
-        //   if (sourdcard.Api.toLowerCase() == "none") {
-        //     soundcardNone = sourdcard;
-        //   }
-        // }
-        return DeviceSelectionResult(
-            3000, 60, offer.soundcards[2].DeviceID, offer.monitors[1].MonitorHandle.toString());
+        Log(LogLevel.Infor,
+            "selected audio deviceid ${requestOptionDevice.SoundcardDeviceID}");
+
+        requestOptionDevice.MonitorHandle = await showAlertDeviceSelection(
+          data: offer.monitors,
+          type: TypeDeviceSelection.monitor,
+          deviceSelectionResult: requestOptionDevice,
+          context: context,
+        );
+        Log(LogLevel.Infor,
+            "selected monitor handle ${requestOptionDevice.MonitorHandle}");
+        return requestOptionDevice;
       }).Notifier((message) {
         print("Notifer $message");
         // TurnOnStatus(message);
@@ -130,12 +136,39 @@ class _MyHomePage extends State<MyHomePage> {
     }
   }
 
+  Future<void> handleClick(String value) async {
+    switch (value) {
+      case 'Fullscreen':
+        isFullscreen
+            ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge)
+            : SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        isFullscreen = !isFullscreen;
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter WebRTC Client',
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-          appBar: AppBar(title: const Text('Flutter WebRTC Client')),
+          appBar: AppBar(
+            title: const Text('Flutter WebRTC Client'),
+            actions: <Widget>[
+              PopupMenuButton<String>(
+                onSelected: handleClick,
+                itemBuilder: (BuildContext context) {
+                  return {'Fullscreen'}.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              ),
+            ],
+          ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => displayTextInputDialog(context),
             child: const Icon(Icons.add),
@@ -177,7 +210,7 @@ class _MyHomePage extends State<MyHomePage> {
               decoration: InputDecoration(
                   hintText: "Your token",
                   suffixIcon: InkWell(
-                    onTap: (){
+                    onTap: () {
                       tokenCtrler.clear();
                     },
                     child: const Icon(Icons.close_rounded),
