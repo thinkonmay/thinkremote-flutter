@@ -20,37 +20,6 @@ class WebRTC {
   late MetricHandlerType MetricHandler;
   late TrackHandlerType TrackHandler;
 
-  Future setup(
-      ChannelHandlerType channelHandler, TrackHandlerType trackHandler) async {
-    String sdpSemantics = 'unified-plan';
-    Map<String, dynamic> configuration = {
-      "iceServers": [
-        {
-          "urls": "turn:workstation.thinkmay.net:3478",
-          "username": "oneplay",
-          "credential": "oneplay"
-        },
-        {
-          "urls": [
-            "stun:workstation.thinkmay.net:3478",
-            "stun:stun.l.google.com:19302"
-          ]
-        }
-      ],
-    };
-
-    conn = await createPeerConnection({
-      ...configuration,
-      ...{'sdpSemantics': sdpSemantics}
-    });
-
-    conn.onDataChannel = channelHandler;
-    conn.onTrack = trackHandler;
-    conn.onIceCandidate = ((RTCIceCandidate ev) => {onICECandidates(ev)});
-    conn.onConnectionState =
-        ((RTCPeerConnectionState ev) => {onConnectionStateChange(ev)});
-  }
-
   WebRTC(SendFuncType sendFunc, TrackHandlerType trackerHandler,
       ChannelHandlerType channelHandler,
       MetricHandlerType metricHandler
