@@ -3,14 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc_client/model/devices.model.dart';
-import 'package:flutter_webrtc_client/utils/popup.selection.dart';
-import 'package:flutter_webrtc_client/webrtc.client.dart';
+import 'package:flutter_webrtc_remote_desktop/flutter_webrtc_remote_desktop.dart';
 
 import 'firebase_options.dart';
-import 'utils/log.dart';
 
 Future<void> main() async {
   // await DotEnv().load(fileName: '.env');
