@@ -4,10 +4,8 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc_remote_desktop/flutter_webrtc_remote_desktop.dart';
-
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -49,6 +47,8 @@ class _MyHomePage extends State<MyHomePage> {
   TextEditingController tokenCtrler = TextEditingController();
   bool isFullscreen = false;
 
+  late WebRTCClient app;
+
   @override
   void initState() {
     super.initState();
@@ -88,9 +88,9 @@ class _MyHomePage extends State<MyHomePage> {
 
   connect(String token) {
     if (token.isNotEmpty) {
-      
-      var app =
-          WebRTCClient("wss://remote.thinkmay.net/handshake",remoteVideo, null, token, (DeviceSelection offer) async {
+      app = WebRTCClient(
+          "wss://remote.thinkmay.net/handshake", remoteVideo, null, token,
+          (DeviceSelection offer) async {
         LogConnectionEvent(ConnectionEvent.WaitingAvailableDeviceSelection);
 
         DeviceSelectionResult requestOptionDevice =
@@ -112,6 +112,19 @@ class _MyHomePage extends State<MyHomePage> {
           deviceSelectionResult: requestOptionDevice,
           context: context,
         );
+
+        requestOptionDevice.bitrate = await showAlertDeviceSelection(
+            data: [500, 1000, 2000, 3000, 6000, 8000, 10000],
+            type: TypeDeviceSelection.bitrate,
+            deviceSelectionResult: requestOptionDevice,
+            context: context);
+
+        requestOptionDevice.framerate = await showAlertDeviceSelection(
+            data: [30, 40, 50, 55, 60],
+            type: TypeDeviceSelection.framerate,
+            deviceSelectionResult: requestOptionDevice,
+            context: context);
+
         Log(LogLevel.Infor,
             "selected monitor handle ${requestOptionDevice.MonitorHandle}");
         return requestOptionDevice;
@@ -132,11 +145,14 @@ class _MyHomePage extends State<MyHomePage> {
         setState(() {});
       });
     }
-  }
+  } 
 
   Future<void> handleClick(String value) async {
     switch (value) {
-      case 'Fullscreen':
+      case 'Reset Video':
+        app.ResetVideo();
+        break;
+      case 'Fullscreen': 
         isFullscreen
             ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge)
             : SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
@@ -157,7 +173,7 @@ class _MyHomePage extends State<MyHomePage> {
               PopupMenuButton<String>(
                 onSelected: handleClick,
                 itemBuilder: (BuildContext context) {
-                  return {'Fullscreen'}.map((String choice) {
+                  return {'Fullscreen', 'Reset Video'}.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
                       child: Text(choice),
